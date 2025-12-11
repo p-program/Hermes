@@ -29,9 +29,11 @@ func NewDeepSeekTranslator(apiKey string) DeepSeekTranslator {
 // source string
 // targets []string
 func (d DeepSeekTranslator) Translate(source string, targets []string) (cost time.Duration, output string, err error) {
-	// 猜语言这个事情交给ai算了
-	// country:=
 	oracle := fmt.Sprintf("使用最简短的纯文本（不包含markdown，不需要注明语言类型）将下述文字翻译成目标语言（%s）：%s", strings.Join(targets, ","), source)
+	return d.Do(oracle)
+}
+
+func (d DeepSeekTranslator) Do(oracle string) (cost time.Duration, output string, err error) {
 	fmt.Println("oracle：", oracle)
 	start := time.Now()
 	defer func() {

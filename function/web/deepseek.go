@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
+	"time"
 )
 
 const deepSeekAPI = "https://api.deepseek.com/v1/chat/completions" // 替
@@ -57,14 +58,19 @@ func CallDeepSeek(prompt string, apiKey string) (string, error) {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+apiKey)
 
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+	}
 	resp, err := client.Do(req)
 	if err != nil {
 		return "", err
 	}
 	defer resp.Body.Close()
 
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
 
 	if resp.StatusCode != 200 {
 		return "", fmt.Errorf("请求失败: %s", body)
